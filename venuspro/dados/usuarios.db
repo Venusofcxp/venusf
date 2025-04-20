@@ -1,0 +1,55 @@
+#!/bin/bash
+BASE_DIR="/etc/venuspro"
+USERS_DB="$BASE_DIR/usuarios.db"
+
+# Função para adicionar um novo usuário ao banco de dados
+adicionar_usuario() {
+    read -p "Nome do usuário: " nome_usuario
+    read -p "Senha: " senha_usuario
+    read -p "Limite de conexões: " limite_conexoes
+    read -p "Data de expiração (em formato timestamp): " data_expiracao
+    status_usuario="ativo"
+    
+    # Adiciona o usuário ao banco de dados
+    echo "$nome_usuario $senha_usuario $limite_conexoes $data_expiracao $status_usuario" >> $USERS_DB
+    echo "Usuário $nome_usuario adicionado com sucesso!"
+}
+
+# Função para remover um usuário do banco de dados
+remover_usuario() {
+    read -p "Nome do usuário a remover: " nome_usuario
+    sed -i "/^$nome_usuario /d" $USERS_DB
+    echo "Usuário $nome_usuario removido com sucesso!"
+}
+
+# Função para listar os usuários no banco de dados
+listar_usuarios() {
+    echo "Usuários registrados:"
+    cat $USERS_DB
+}
+
+# Função para verificar e expirar usuários com base na data de expiração
+expirar_usuarios() {
+    data_atual=$(date +%s)
+    
+    # Verifica cada usuário e marca como expirado se a data de expiração for anterior à data atual
+    while IFS= read -r linha; do
+        nome_usuario=$(echo $linha | awk '{print $1}')
+        data_expiracao=$(echo $linha | awk '{print $4}')
+        if [ "$data_expiracao" -lt "$data_atual" ]; then
+            sed -i "s/^$nome_usuario .*/$nome_usuario $(echo $linha | awk '{print $2,$3,$4,"expirado"}')/" $USERS_DB
+        fi
+    done < $USERS_DB
+    echo "Usuários expirados verificados."
+}
+
+# Função para buscar e exibir os usuários expirados
+usuarios_expirados() {
+    grep "expirado" $USERS_DB
+}
+
+# Função para contar o número de usuários no banco de dados
+contar_usuarios() {
+    usuarios_count=$(wc -l < $USERS_DB)
+    echo "Total de usuários registrados: $usuarios_count"
+}
