@@ -12,7 +12,7 @@ PASTA_BASE="/etc/venuspro"
 # Clonar repositório do GitHub
 echo -e "\n\033[1;34m[*] Baixando arquivos do repositório...\033[0m"
 rm -rf /tmp/venuspro
-git clone https://github.com/seuusuario/venuspro /tmp/venuspro > /dev/null 2>&1
+git clone https://github.com/Venusofcxp/venusf /tmp/venuspro > /dev/null 2>&1
 
 # Verificar se clonagem foi bem-sucedida
 if [ ! -d "/tmp/venuspro" ]; then
